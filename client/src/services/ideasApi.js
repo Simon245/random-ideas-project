@@ -12,6 +12,10 @@ class IdeasApi {
     return axios.post(this._apiUrl, data);
   }
 
+  updateIdea(id, data) {
+    return axios.put(`${this._apiUrl}/${id}`, data);
+  }
+
   deleteIdea(id) {
     const username = localStorage.getItem('username')
       ? localStorage.getItem('username')

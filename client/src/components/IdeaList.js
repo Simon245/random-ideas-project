@@ -21,6 +21,13 @@ class IdeaList {
         const ideaId = e.target.parentElement.parentElement.dataset.id;
         this.deleteIdea(ideaId);
       }
+
+      if (e.target.classList.contains('fa-edit')) {
+        e.stopImmediatePropagation();
+
+        const ideaId = e.target.parentElement.parentElement.dataset.id;
+        this.editIdea(ideaId);
+      }
     });
   }
 
@@ -34,6 +41,14 @@ class IdeaList {
     }
   }
 
+  async editIdea(id) {
+    const idea = this._ideas.filter((i) => i._id === id)[0];
+    const updateEvent = new CustomEvent('updateform', {
+      detail: idea,
+    });
+    document.dispatchEvent(updateEvent);
+  }
+
   async getIdeas() {
     try {
       const res = await IdeasApi.getIdeas();
@@ -44,8 +59,18 @@ class IdeaList {
     }
   }
 
-  addIdeaToList(idea) {
-    this._ideas.push(idea);
+  updateIdeaList(idea, isEdit = false) {
+    if (isEdit) {
+      this._ideas.map((i) => {
+        if (i._id === idea._id) {
+          i.text = idea.text;
+          i.tag = idea.tag;
+          i.username = idea.username;
+        }
+      });
+    } else {
+      this._ideas.push(idea);
+    }
     this.render();
   }
 
@@ -66,9 +91,18 @@ class IdeaList {
               </button>
           `
             : '';
+        const editBtn =
+          idea.username === localStorage.getItem('username')
+            ? `
+             <button class="edit">
+                <i class="fas fa-edit"></i>
+              </button>
+          `
+            : '';
         return `
           <div class="card" data-id="${idea._id}">
             ${deleteBtn}
+            ${editBtn}
             <h3>
               ${idea.text}
             </h3>
